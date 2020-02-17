@@ -2,7 +2,7 @@
  * Nextcloud Android client application
  *
  * @author Chris Narkiewicz
- * Copyright (C) 2019 Chris Narkiewicz <hello@ezaquarii.com>
+ * Copyright (C) 2020 Chris Narkiewicz <hello@ezaquarii.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.nextcloud.client.etm.pages.EtmAccountsFragment
+import com.nextcloud.client.etm.pages.EtmBackgroundJobsFragment
 import com.nextcloud.client.etm.pages.EtmPreferencesFragment
+import com.nextcloud.client.jobs.BackgroundJobManager
+import com.nextcloud.client.jobs.JobInfo
 import com.owncloud.android.R
 import com.owncloud.android.lib.common.accounts.AccountUtils
 import javax.inject.Inject
@@ -35,7 +38,8 @@ import javax.inject.Inject
 class EtmViewModel @Inject constructor(
     private val defaultPreferences: SharedPreferences,
     private val platformAccountManager: AccountManager,
-    private val resources: Resources
+    private val resources: Resources,
+    private val backgroundJobManager: BackgroundJobManager
 ) : ViewModel() {
 
     companion object {
@@ -47,6 +51,10 @@ class EtmViewModel @Inject constructor(
             AccountUtils.Constants.KEY_OC_VERSION,
             AccountUtils.Constants.KEY_USER_ID
         )
+
+        const val PAGE_SETTINGS = 0
+        const val PAGE_ACCOUNTS = 1
+        const val PAGE_JOBS = 2
     }
 
     /**
@@ -66,6 +74,11 @@ class EtmViewModel @Inject constructor(
             iconRes = R.drawable.ic_user,
             titleRes = R.string.etm_accounts,
             pageClass = EtmAccountsFragment::class
+        ),
+        EtmMenuEntry(
+            iconRes = R.drawable.ic_clock,
+            titleRes = R.string.etm_background_jobs,
+            pageClass = EtmBackgroundJobsFragment::class
         )
     )
 
@@ -84,6 +97,10 @@ class EtmViewModel @Inject constructor(
             }.toMap()
             AccountData(account, userData)
         }
+    }
+
+    val backgroundJobs: LiveData<List<JobInfo>> get() {
+        return backgroundJobManager.jobs
     }
 
     init {
@@ -107,5 +124,21 @@ class EtmViewModel @Inject constructor(
         } else {
             false
         }
+    }
+
+    fun pruneJobs() {
+        backgroundJobManager.pruneJobs()
+    }
+
+    fun cancelAllJobs() {
+        backgroundJobManager.cancelAllJobs()
+    }
+
+    fun startTestJob() {
+        backgroundJobManager.scheduleTestJob()
+    }
+
+    fun cancelTestJob() {
+        backgroundJobManager.cancelTestJob()
     }
 }

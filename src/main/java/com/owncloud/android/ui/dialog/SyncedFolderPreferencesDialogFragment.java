@@ -387,32 +387,36 @@ public class SyncedFolderPreferencesDialogFragment extends DialogFragment {
                     }
                 });
 
-        view.findViewById(R.id.remote_folder_container).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent action = new Intent(getActivity(), FolderPickerActivity.class);
-                getActivity().startActivityForResult(action, REQUEST_CODE__SELECT_REMOTE_FOLDER);
+        View remoteFolderContainer = view.findViewById(R.id.remote_folder_container);
+        remoteFolderContainer.setOnClickListener(v -> {
+            Intent action = new Intent(getActivity(), FolderPickerActivity.class);
+            getActivity().startActivityForResult(action, REQUEST_CODE__SELECT_REMOTE_FOLDER);
+        });
+
+        remoteFolderContainer.setOnLongClickListener(v -> {
+            if (mRemoteFolderSummary.getEllipsize() != null) {
+                mRemoteFolderSummary.setEllipsize(null);
+                mRemoteFolderSummary.setMaxLines(Integer.MAX_VALUE);
+                return true;
             }
+            return false;
         });
 
-        mRemoteFolderSummary.setOnClickListener(textView -> {
-            mRemoteFolderSummary.setEllipsize(null);
-            mRemoteFolderSummary.setMaxLines(Integer.MAX_VALUE);
+        View localFolderContainer = view.findViewById(R.id.local_folder_container);
+        localFolderContainer.setOnClickListener(v -> {
+            Intent action = new Intent(getActivity(), UploadFilesActivity.class);
+            action.putExtra(UploadFilesActivity.KEY_LOCAL_FOLDER_PICKER_MODE, true);
+            action.putExtra(REQUEST_CODE_KEY, REQUEST_CODE__SELECT_LOCAL_FOLDER);
+            getActivity().startActivityForResult(action, REQUEST_CODE__SELECT_LOCAL_FOLDER);
         });
 
-        view.findViewById(R.id.local_folder_container).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent action = new Intent(getActivity(), UploadFilesActivity.class);
-                action.putExtra(UploadFilesActivity.KEY_LOCAL_FOLDER_PICKER_MODE, true);
-                action.putExtra(REQUEST_CODE_KEY, REQUEST_CODE__SELECT_LOCAL_FOLDER);
-                getActivity().startActivityForResult(action, REQUEST_CODE__SELECT_LOCAL_FOLDER);
+        localFolderContainer.setOnLongClickListener(v -> {
+            if (mLocalFolderSummary.getEllipsize() != null) {
+                mLocalFolderSummary.setEllipsize(null);
+                mLocalFolderSummary.setMaxLines(Integer.MAX_VALUE);
+                return true;
             }
-        });
-
-        mLocalFolderSummary.setOnClickListener(textView -> {
-            mLocalFolderSummary.setEllipsize(null);
-            mLocalFolderSummary.setMaxLines(Integer.MAX_VALUE);
+            return false;
         });
 
         view.findViewById(R.id.sync_enabled).setOnClickListener(new OnClickListener() {
